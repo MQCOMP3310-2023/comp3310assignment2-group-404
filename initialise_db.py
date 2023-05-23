@@ -1,5 +1,6 @@
 from project import db, create_app, models
 from project.models import Restaurant, MenuItem
+from project.models import Users
 
 def populate_db():
     #Menu for UrbanBurger
@@ -206,10 +207,24 @@ def populate_db():
     
     print("added menu items!")
 
+def populate_users():
+    user1 = Users(email='admin@test.com', password='1234', role='admin')
+    user2 = Users(email='owner@test.com', password='5678', role='owner')
+
+    session = db.session()
+
+    session.add(user1)
+    session.add(user2)
+    session.commit()
+
+    print("added users!")
+
+
 
 if __name__ == '__main__':
   app = create_app()
   with app.app_context():
     db.create_all()
     populate_db()
+    populate_users()
 
