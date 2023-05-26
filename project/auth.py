@@ -27,8 +27,14 @@ def login_post():
 
     # if the above check passes, then we know the user has the right credentials
     login_user(user, remember=remember)
-    return redirect(url_for('main.profile'))
+    return redirect(url_for('main.showRestaurants'))
 
 @auth.route('/signup')
 def signup():
     return render_template('signup.html')
+
+@auth.route('/create-temp-users')
+def create_temporary_users():
+    user1 = User(email='user3@example.com', password='password3', name='User 1', role='administrator')
+    db.session.add(user1)
+    db.session.commit()

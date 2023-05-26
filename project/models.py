@@ -38,4 +38,4 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
-    user_type = db.Column(db.String(50))
+    role = db.Column(db.String(50))

@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from .models import Restaurant, MenuItem
 from sqlalchemy import asc
 from . import db
+from flask_login import login_required, current_user
 
 main = Blueprint('main', __name__)
 
@@ -14,7 +15,12 @@ def showRestaurants():
 
 #Create a new restaurant
 @main.route('/restaurant/new/', methods=['GET','POST'])
+@login_required
 def newRestaurant():
+  if current_user.role != 'administrator' and current_user.role != 'restaurant_owner':
+        flash('Access denied. You are not authorized to perform this action.')
+        return redirect(url_for('main.showRestaurants'))
+  
   if request.method == 'POST':
       newRestaurant = Restaurant(name = request.form['name'])
       db.session.add(newRestaurant)
@@ -26,8 +32,17 @@ def newRestaurant():
 
 #Edit a restaurant
 @main.route('/restaurant/<int:restaurant_id>/edit/', methods = ['GET', 'POST'])
+@login_required
 def editRestaurant(restaurant_id):
   editedRestaurant = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
+  if current_user.role != 'administrator' and current_user.role != 'restaurant_owner':
+        flash('Access denied. You are not authorized to perform this action.')
+        return redirect(url_for('main.showRestaurants'))
+  
+  if current_user.role == 'restaurant_owner' and current_user.id != editedRestaurant.owner_id:
+        flash('Access denied. You are not authorized to edit this restaurant.')
+        return redirect(url_for('main.showRestaurants'))
+  
   if request.method == 'POST':
       if request.form['name']:
         editedRestaurant.name = request.form['name']
@@ -39,8 +54,17 @@ def editRestaurant(restaurant_id):
 
 #Delete a restaurant
 @main.route('/restaurant/<int:restaurant_id>/delete/', methods = ['GET','POST'])
+@login_required
 def deleteRestaurant(restaurant_id):
   restaurantToDelete = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
+  if current_user.role != 'administrator' and current_user.role != 'restaurant_owner':
+        flash('Access denied. You are not authorized to perform this action.')
+        return redirect(url_for('main.showRestaurants'))
+  
+  if current_user.role == 'restaurant_owner' and current_user.id != restaurantToDelete.owner_id:
+        flash('Access denied. You are not authorized to delete this restaurant.')
+        return redirect(url_for('main.showRestaurants'))
+  
   if request.method == 'POST':
     db.session.delete(restaurantToDelete)
     flash('%s Successfully Deleted' % restaurantToDelete.name)
@@ -61,8 +85,14 @@ def showMenu(restaurant_id):
 
 #Create a new menu item
 @main.route('/restaurant/<int:restaurant_id>/menu/new/',methods=['GET','POST'])
+@login_required
 def newMenuItem(restaurant_id):
   restaurant = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
+
+  if current_user.role != 'administrator' and current_user.role != 'restaurant_owner':
+        flash('Access denied. You are not authorized to perform this action.')
+        return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))
+  
   if request.method == 'POST':
       newItem = MenuItem(name = request.form['name'], description = request.form['description'], price = request.form['price'], course = request.form['course'], restaurant_id = restaurant_id)
       db.session.add(newItem)
@@ -74,10 +104,19 @@ def newMenuItem(restaurant_id):
 
 #Edit a menu item
 @main.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit', methods=['GET','POST'])
+@login_required
 def editMenuItem(restaurant_id, menu_id):
-
     editedItem = db.session.query(MenuItem).filter_by(id = menu_id).one()
     restaurant = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
+
+    if current_user.role != 'administrator' and current_user.role != 'restaurant_owner':
+        flash('Access denied. You are not authorized to perform this action.')
+        return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))
+
+    if current_user.role == 'restaurant_owner' and restaurant.owner_id != current_user.id:
+        flash('Access denied. You are not authorized to edit this menu item.')
+        return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))
+
     if request.method == 'POST':
         if request.form['name']:
             editedItem.name = request.form['name']
@@ -97,9 +136,18 @@ def editMenuItem(restaurant_id, menu_id):
 
 #Delete a menu item
 @main.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete', methods = ['GET','POST'])
+@login_required
 def deleteMenuItem(restaurant_id,menu_id):
     restaurant = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
     itemToDelete = db.session.query(MenuItem).filter_by(id = menu_id).one() 
+    if current_user.role != 'administrator' and current_user.role != 'restaurant_owner':
+        flash('Access denied. You are not authorized to perform this action.')
+        return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))
+
+    if current_user.role == 'restaurant_owner' and restaurant.owner_id != current_user.id:
+        flash('Access denied. You are not authorized to delete this menu item.')
+        return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))
+
     if request.method == 'POST':
         db.session.delete(itemToDelete)
         db.session.commit()
