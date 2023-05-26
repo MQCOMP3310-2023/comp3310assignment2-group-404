@@ -29,12 +29,27 @@ def login_post():
     login_user(user, remember=remember)
     return redirect(url_for('main.showRestaurants'))
 
-@auth.route('/signup')
+@auth.route('/signup', methods = ['GET', 'POST'])
 def signup():
-    return render_template('signup.html')
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        name = request.form.get('name')
+        role = request.form.get('role')  
 
-@auth.route('/create-temp-users')
-def create_temporary_users():
-    user1 = User(email='user3@example.com', password='password3', name='User 1', role='administrator')
-    db.session.add(user1)
-    db.session.commit()
+        # Validate form inputs
+
+        # Check if the user already exists
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('An account with this email already exists.')
+            return redirect(url_for('auth.signup'))
+
+        # Create a new user
+        new_user = User(email=email, password=password, name=name, role=role)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Account created successfully. Please log in.')
+        return redirect(url_for('auth.login'))
+    return render_template('signup.html')

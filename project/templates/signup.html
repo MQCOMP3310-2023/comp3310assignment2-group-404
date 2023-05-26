@@ -1,0 +1,37 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Sign Up</h3>
+    <div class="box">
+        <form method="POST" action="{{ url_for('auth.signup') }}">
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="password" name="password" placeholder="Your Password">
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="name" name="name" placeholder="Your Name">
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <label for="role">Role:</label>
+                    <select class="input is-large" name="role" required>
+                        <option value="user">User</option>
+                        <option value="restaurant_owner">Restaurant Owner</option>
+                        <option value="administrator">Administrator</option>
+                      </select>
+                </div>
+            </div>
+            <button class="button is-block is-info is-large is-fullwidth">Sign Up</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
