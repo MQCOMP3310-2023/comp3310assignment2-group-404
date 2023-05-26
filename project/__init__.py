@@ -9,10 +9,6 @@ def create_app():
 
     app.config['SECRET_KEY'] = 'secret-key-do-not-reveal'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///restaurantmenu.db'
-    app.config['SQLALCHEMY_BINDS'] = {
-        'restaurant': 'sqlite:///restaurantmenu.db',
-        'users': 'sqlite:///users.db'
-    }
 
     db.init_app(app)
 
