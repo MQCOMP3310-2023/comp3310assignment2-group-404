@@ -28,7 +28,7 @@ def newRestaurant():
         return redirect(url_for('main.showRestaurants'))
   
   if request.method == 'POST':
-      newRestaurant = Restaurant(name = request.form['name'])
+      newRestaurant = Restaurant(name = request.form['name'], owner_id = current_user.id)
       db.session.add(newRestaurant)
       flash('New Restaurant %s Successfully Created' % newRestaurant.name)
       db.session.commit()
@@ -99,6 +99,10 @@ def newMenuItem(restaurant_id):
         flash('Access denied. You are not authorized to perform this action.')
         return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))
   
+  if current_user.role == 'restaurant_owner' and restaurant.owner_id != current_user.id:
+        flash('Access denied. You are not authorized to edit this menu item.')
+        return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))
+
   if request.method == 'POST':
       newItem = MenuItem(name = request.form['name'], description = request.form['description'], price = request.form['price'], course = request.form['course'], restaurant_id = restaurant_id)
       db.session.add(newItem)

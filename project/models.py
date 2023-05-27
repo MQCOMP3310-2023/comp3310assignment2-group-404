@@ -4,6 +4,8 @@ from flask_login import UserMixin
 class Restaurant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    owners = db.relationship('User')
 
     @property
     def serialize(self):
