@@ -11,7 +11,9 @@ main = Blueprint('main', __name__)
 def showRestaurants():
     if request.method == 'POST':
         query = request.form.get('search_query')
-        restaurants = db.session.query(Restaurant).filter(func.lower(Restaurant.name) == func.lower(query))
+        query = "{}%".format(query)
+        #restaurants = db.session.query(Restaurant).filter(func.lower(Restaurant.name) == func.low  er(query))
+        restaurants = db.session.query(Restaurant).filter(Restaurant.name.ilike(query)).all()
         return render_template('restaurants.html', restaurants = restaurants)
     
     #Query all restaurants and order them by name in ascending order   
