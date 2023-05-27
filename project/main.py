@@ -1,18 +1,25 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from .models import Restaurant, MenuItem
-from sqlalchemy import asc
+from sqlalchemy import asc, func
 from . import db
 from flask_login import login_required, current_user
 
 main = Blueprint('main', __name__)
 
 #Show all restaurants
-@main.route('/')
-@main.route('/restaurant/')
+@main.route('/', methods = ['GET', 'POST'])
 def showRestaurants():
-  #Query all restaurants and order them by name in ascending order
-  restaurants = db.session.query(Restaurant).order_by(asc(Restaurant.name))
-  return render_template('restaurants.html', restaurants = restaurants)
+    if request.method == 'POST':
+        query = request.form.get('search_query')
+        restaurants = db.session.query(Restaurant).filter(func.lower(Restaurant.name) == func.lower(query))
+        return render_template('restaurants.html', restaurants = restaurants)
+    
+    #Query all restaurants and order them by name in ascending order   
+    restaurants = db.session.query(Restaurant).order_by(asc(Restaurant.name))
+    return render_template('restaurants.html', restaurants = restaurants)
+
+
+
 
 #Show Profile
 @main.route('/profile')

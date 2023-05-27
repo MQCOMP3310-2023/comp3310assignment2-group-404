@@ -2,9 +2,16 @@
 {% block content %}
 {% include "header.html" %}
 	<div class="row top-menu">
-		<div class="col-md-10"></div>
-		<div class="col-md-2 text-right">
-					</div>
+		<div class="col-md-8"></div>
+		<form method="POST" action="{{ url_for('main.showRestaurants') }}">
+			<div class="col-md-2" style="padding-right: 0;">
+				<input class="search-query-box" type="search" name="search_query" placeholder="Restaurant">
+			</div>
+			<div class="col-sm-2" style="padding-left: 2px;">
+				<input type="submit" class="search-button" aria-label="Search" value="Search"> 
+			</div>
+		</form>
+
 	</div>
 	<div class="row divider blue">
 		<div class="col-md-12"></div>
@@ -41,15 +48,18 @@
 		</div>
 		<div class="col-md-1"></div>
 	</div>
+
+
 	{% for restaurant in restaurants %}
-		<a href = "{{url_for('main.showMenu', restaurant_id = restaurant.id)}}">
-			<div class="row">
-				<div class="col-md-1"></div>
-					<div class="col-md-10 restaurant-list">
-						<h3>{{restaurant.name}}</h3>
-					</div>
-				<div class="col-md-1"></div>
-			</div>
-		</a>
+	<a href = "{{url_for('main.showMenu', restaurant_id = restaurant.id)}}">
+		<div class="row">
+			<div class="col-md-1"></div>
+				<div class="col-md-10 restaurant-list">
+					<h3>{{restaurant.name}}</h3>
+				</div>
+			<div class="col-md-1"></div>
+		</div>
+	</a>
 	{% endfor %}
+
 {% endblock %}
