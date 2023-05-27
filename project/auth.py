@@ -71,16 +71,12 @@ def changePassword():
         newpassword = request.form.get('newpassword')
         confirmpassword = request.form.get('confirmpassword')
 
-        #validate form inputs
-
-        #check password is correct
-        if not check_password_hash(current_user.password, originalpassword):
+        #check password is correct and both new passwords match
+        if not check_password_hash(current_user.password, originalpassword) or (newpassword != confirmpassword):
             flash('Please check your login details and try again.')
             current_app.logger.warning("User password change failed")
-            return redirect(url_for('auth.changePassword')) #if the password is wrong, reload the page
+            return redirect(url_for('auth.changePassword')) #reload page
         
-        #TODO check comfirmation and new password are same
-
         #generate new password hash
         password_hash = generate_password_hash(newpassword)
 
