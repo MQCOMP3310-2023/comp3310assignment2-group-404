@@ -3,6 +3,7 @@ from flask_login import login_user, login_required, logout_user
 from sqlalchemy import text
 from .models import User
 from . import db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth = Blueprint('auth', __name__)
 
@@ -20,7 +21,7 @@ def login_post():
 
     # check if the user actually exists
     # take the user-supplied password and compare it with the stored password
-    if not user or not (user.password == password):
+    if not user or not check_password_hash(user.password, password):
         flash('Please check your login details and try again.')
         current_app.logger.warning("User login failed")
         return redirect(url_for('auth.login')) # if the user doesn't exist or password is wrong, reload the page
@@ -44,14 +45,17 @@ def signup():
         if existing_user:
             flash('An account with this email already exists.')
             return redirect(url_for('auth.signup'))
+        
+        password_hash = generate_password_hash(password)
 
         # Create a new user
-        new_user = User(email=email, password=password, name=name, role=role)
+        new_user = User(email=email, password=password_hash, name=name, role=role)
         db.session.add(new_user)
         db.session.commit()
 
         flash('Account created successfully. Please log in.')
         return redirect(url_for('auth.login'))
+    
     return render_template('signup.html')
 
 @auth.route('/logout')
