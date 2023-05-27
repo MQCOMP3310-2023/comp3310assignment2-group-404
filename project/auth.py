@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from sqlalchemy import text
 from .models import User
 from . import db
@@ -57,6 +57,38 @@ def signup():
         return redirect(url_for('auth.login'))
     
     return render_template('signup.html')
+
+#Change password
+@auth.route('/profile/passwordChange', methods = ['GET', 'POST'])
+@login_required
+def changePassword():
+    if request.method == 'POST':
+        
+        user = db.session.query(User).filter_by(id = current_user.id).one()
+
+        #get form data
+        originalpassword = request.form.get('originalpassword')
+        newpassword = request.form.get('newpassword')
+        confirmpassword = request.form.get('confirmpassword')
+
+        #check password is correct and both new passwords match
+        if not check_password_hash(current_user.password, originalpassword) or (newpassword != confirmpassword):
+            flash('Please check your login details and try again.')
+            current_app.logger.warning("User password change failed")
+            return redirect(url_for('auth.changePassword')) #reload page
+        
+        #generate new password hash
+        password_hash = generate_password_hash(newpassword)
+
+        #update password in database
+        user.password = password_hash
+        db.session.add(user)
+        db.session.commit() 
+
+        flash('Password updated successfully')
+        return redirect(url_for('main.profile'))
+    
+    return render_template('passwordChange.html', name=current_user.name)
 
 @auth.route('/logout')
 @login_required
