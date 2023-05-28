@@ -161,3 +161,21 @@ u }
 	text-align: center;
 
 }
+
+.search-query-box {
+    background-color:white;
+	width: 25rem;
+    border-radius: 5px;
+    font-size: 1em;
+    color: #747474;
+	float: right;
+    padding: 10px 14px;
+}
+
+.search-button {
+    background-color: #42C3C9;
+    border-radius: 5px;
+    font-size: 1em;
+    color: white;
+    padding: 10px 14px;
+}
