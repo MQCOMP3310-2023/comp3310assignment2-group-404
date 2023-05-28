@@ -38,6 +38,51 @@ class TestApp(unittest.TestCase):
         assert response.status_code == 200
         assert response.request.path == '/login'
 
+    def test_delete_restaurant_as_owner(self):
+        response = self.client.post('/signup', data = {
+            'email' : 'user@test.com',
+            'password' : '1234',
+            'name' : 'user',
+            'role' : 'restaurant_owner'
+        }, follow_redirects = True)
+        assert response.status_code == 200
+        assert response.request.path == '/login'
+
+        response = self.client.post('/login', data = {
+            'email' : 'user@test.com',
+            'password' : '1234'
+        }, follow_redirects = True)
+        assert response.status_code == 200
+        assert response.request.path == '/'
+        response = self.client.get('/restaurant/3/delete',
+                                   follow_redirects = True)
+        assert response.status_code == 200
+        response_text = response.get_data(as_text = True)
+        self.assertIn("Panda Garden", response_text)
+        assert response.request.path == '/'
+
+    def test_logout(self):
+        response = self.client.post('/signup', data = {
+            'email' : 'user@test.com',
+            'password' : '1234',
+            'name' : 'user',
+            'role' : 'restaurant_owner'
+        }, follow_redirects = True)
+        assert response.status_code == 200
+        assert response.request.path == '/login'
+
+        response = self.client.post('/login', data = {
+            'email' : 'user@test.com',
+            'password' : '1234'
+        }, follow_redirects = True)
+        assert response.status_code == 200
+        assert response.request.path == '/'
+        
+        response = self.client.get('/logout', follow_redirects = True)
+        assert response.status_code == 200
+        assert response.request.path == '/'
+
+
     def test_hashed_passwords(self):
         response = self.client.post('/signup', data = {
             'email' : 'test@test.com',
@@ -78,6 +123,7 @@ class TestApp(unittest.TestCase):
             'password' : '1234'
         }, follow_redirects = True)
         assert response.status_code == 200
+        assert response.request.path == '/'
 
         response = self.client.get('/profile')
 
