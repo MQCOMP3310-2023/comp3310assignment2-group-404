@@ -61,7 +61,7 @@ def signup():
 #Change password
 @auth.route('/profile/passwordChange', methods = ['GET', 'POST'])
 @login_required
-def changePassword():
+def change_password():
     if request.method == 'POST':
         
         user = db.session.query(User).filter_by(id = current_user.id).one()
@@ -72,10 +72,10 @@ def changePassword():
         confirmpassword = request.form.get('confirmpassword')
 
         #check password is correct and both new passwords match
-        if not check_password_hash(current_user.password, originalpassword) or (newpassword != confirmpassword):
-            flash('Please check your login details and try again.')
+        if not check_password_hash(current_user.password, originalpassword) or (newpassword != confirmpassword) or (len(newpassword) < 8):
+            flash('Password change failed.')
             current_app.logger.warning("User password change failed")
-            return redirect(url_for('auth.changePassword')) #reload page
+            return redirect(url_for('auth.change_password')) #reload page    
         
         #generate new password hash
         password_hash = generate_password_hash(newpassword)
@@ -85,7 +85,7 @@ def changePassword():
         db.session.add(user)
         db.session.commit() 
 
-        flash('Password updated successfully')
+        flash('Password updated successfully', 'info')
         return redirect(url_for('main.profile'))
     
     return render_template('passwordChange.html', name=current_user.name)
